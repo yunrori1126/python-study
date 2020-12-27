@@ -88,4 +88,68 @@ def get_time_consumed(func):
 위에서 정의한 `get_time_consumed` 데코레이터를 활용하여 우리는 `plus_func`라는 함수를 꾸며줄 수 있게 된다. (즉, `plus_func`함수를 실행하게 되면 함수 수행시간을 자동으로 출력할 수 있게 된다.)
 
 ```python
+#-- case 1 --#
+def plus_func(first_arg, second_arg):
+    result = sum((first_arg, second_arg))
+    print('the result is {0}.format(result))
+decorated_plus_func = get_time_consumed(plus_func)
+decorated_plus_func(3, 4)
+
+#-- case 2 --#
+@get_time_consumed
+def plus_func(first_arg, second_arg):
+    result = fisrt_arg + second_arg
+    print("the result is {0}".format(result))
+
+plus_func(3, 4)
+```
+
+case 1과 같이 `get_time_consumed` 함수 안의 인자로 `plus_func`함수를 전달해줄 수 있고,
+case 2과 같이 '@'기호를 사용하여 `get_time_consumed` 함수를 데코레이터로 호출할 수도 있다.
+
+```
+>>> the result is 7
+>>> 'plus_func' 73.1945 usec
+```
+case 1과 case 2는 동일한 결과를 내놓는다.
+case 2와 같이 get_time_consumed를 데코레이터로 호출하게 되는 것의 의미는 사실상 case 1의 코드를 실행하는 것과 완벽하게 동치이기 때문이다.
+
+
+#### 2. 이번에는 범용적으로 사용 가능한 decorator를 정의해보자.
+
+사실 위에서 정의한 `get_time_consumed`라는 데코레이터는 꾸밈을 받는 함수(이 경우 `plus_func`)가 인자로 딱 두개를 전달받을 때에만 사용할 수 있기 때문에 범용성이 떨어진다.
+
+즉, `plus_func` 함수가 딱 두개의 인자를 필요로 하기 때문에 `get_time_consumed` 데코레이터를 사용해도 에러가 나지 않았던 것이다.
+
+만약 우리가 정의한 `plus_func` 함수가 사실은 3개, 4개, 혹은 그 이상의 인자를 전달받는 함수라면 `get_time_onsumed` 데코레이터를 사용할 수 없게 된다. 따라서 범용적으로 사용이 가능한 데코레이터를 만들어주기 위해서는 데코레이터 안의 `wrapper` 함수를 정의할 때 `*args` 또는 `**kwargs`를 인자로 전달받게 만드는 것이 좋다.
+
+```python
+def get_time_consumed_general(func):
+    def wrapper(*args):
+        start = time.time()
+        result = func(*args)
+        end = time.time()
+        print('%r %2.4f usec' % (func.name, (end - start) * 1000000))
+
+        return result
+    return wrapper
+
+@get_time_consumed_general
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+```
+```python
+plus_func(3, 4, 5)
+```
+```
+>>> the result is 12
+>>> 'plus_func' 39.5775 usec
+```
+```python
+plus_func(3, 4, 5, 6)
+```
+```
+>>> the result is 18
+>>> 'plus_func' 117.7788 usec
 ```
