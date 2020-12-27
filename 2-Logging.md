@@ -47,7 +47,7 @@ handler instance는 기능과 목적에 따라 여러개를 동시에 사용할 
 
 handler isntance를 생성한 뒤에는 기본적인 사항들을 세팅해줘야 하는데 그 방법은 아래와 같다.
 
-##### (1) hnadler instance 생성
+##### (1) handler instance 생성
 ```python
 stream_handler = logging.StreamHandler()
 file_handler = logging.FileHandler(filename='information.log') # information.log라는 이름의 파일에 log 메시지를 전달
@@ -70,6 +70,21 @@ formatter = logging.Formatter('\n[%(levelnames)s|%(filename)s:%(lineno)s] %(asct
 ```
 formatter instance는 `Formatter` 메소드로 생성할 수 있다. 이 formatter instance를 통해 어떤 식으로 로그 메시지를 출력할 것인지 그 출력 형태를 지정해줄 수 있다.
 
-formatter instance를 생성할 때 사용하게 되는 format은 아래와 같다.
+formatter instance를 생성할 때 사용하게 되는 format은 아래와 같다.:point_down:
 
+> formatter instance를 생성할 때 사용하게 되는 format들
+> 속성 | 이름 | 설명
+> --- | --- | ---
+> asctime | %(asctime)s | 인간이 읽을 수 있는 시간 표시
+> created | %(created)f | log record가 만들어진 시간
+> filename | %(filename)s | pathname의 file 이름 부분
+> funcName | %(funcName)s | logging call을 포함하는 function의 이름
+> levelname | %(levelname)s | 메시지의 text logging level
+> lineno | %(lineno)d | logging call이 발생한 코드의 line 숫자
+> module | %(module)s | filename의 모듈 이름 부분
+> message | %(message)s | 메시지
+> name | %(name)s | logger의 이름
+> pathname | %(pathname)s | full pathname
+> thread | %(thread)d | thread ID
+> threadName | %(threadName)s | thread의 이름
 
