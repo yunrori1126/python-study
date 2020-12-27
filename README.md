@@ -287,8 +287,110 @@ print(plus_func.name)
 `plus_func`함수의 메타데이터가 잘 출력되는 것을 확인할 수 있다.
 
 ### 데코레이터는 class로도 정의할 수 있다!
+
+이제까지 데코레이터는 항상 function으로 정의했었는데, 사실 데코레이터는 class로도 정의할 수 있다. 인자를 필요로 하지 않는 데코레이터(`get_time_consumed_general`), 인자를 필요로 하는 데코레이터 (`decorator_maker`)모두 class로 정의할 수 있으니 이 챕터에서는 두 가지 경우를 모두 다뤄보도록 하자.
+
 #### 1. `get_time_consumed_general` 데코레이터를 class로 정의해보자
+`get_time_consumed_general` 데코레이터를 class로 정의해보자. 
+
+인자를 필요로 하지 않았던 `get_time_consumed_general` 이라는 데코레이터를 class로 바꿔서 정의하면 아래와 같다.
+
+```python
+class GetTimeConsumedGeneral:
+    def init(self, func):
+        self.func = func
+    
+    def call(self, *args):
+        start = time.time()
+        result = self.func(*args)
+        end = time.time()
+        print('%r %2.4f usec' % (self.func.name, (end - start) * 1000000))
+        return result
+```
+`init`메소드에서 꾸미려는 함수를 받고, `call`메소드에서 어떤식으로 꾸밀지 그 꾸미는 컨텐츠를 작성해주면 된다.
+이렇게 정의된 클래스를 이용하여 `plus_func`를 꾸밀 수 있는데, 두 가지 case로 나누어서 꾸며보겠다.
+
+```python
+#-- case 1 --#
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+decorated_plus_func = GetTimeConsumedGeneral(plus_func)
+decorated_plus_func(3, 4, 5)
+```
+```
+>>> the result is 12
+>>> 'plus_func' 40.7696 usec
+```
+위의 case 1 코드와 같이 데코레이터를 '@' 기호를 사용하지 않고 `GetTimeConsumedGeneral`클래스에 속하는 인스턴스를 직접 만들어 `plus_func` 함수를 꾸며줄 수도 있고,
+```python
+#-- case 2 --#
+@GetTimeConsumedGeneral
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+```
+```
+>>> the result is 12
+>>> 'plus_func' 40.7696 usec
+```
+위의 case 2 코드와 같이 데코레이터를 '@' 기호를 사용하여 `GetTimeConsumedGeneral`클래스로 정의된 데코레이터를 호출하여 `plus_func` 함수를 꾸며줄 수도 있다.
 
 #### 2. `decorator_maker`를 class로 만들어보자
+이번에는 'sec', 'usec', 'msec'와 같은 인자를 전달받았던 `decorator_maker`를 class로 정의해보도록 하자.
 
-### 데코레이터를 사용한 여러 예제들
+```python
+class DecoratorMaker:
+    def init(self, dec_arg):
+        self.dec_arg = dec_arg
+    
+    def call(self, func):
+        def wrapper(*args):
+            start = time.time()
+            result = func(*args) 
+            end = time.time()
+            if dec_arg == 'msec':
+                print('%r %2.4 msec' % (func.name, (end - start) * 1000))
+            elif dec_arg == 'usec':
+                print('%r %2.4 usec' % (func.name, (end - start) * 1000000))
+            else:
+                print('%r %2.4 sec' % (func.name, (end - start)))
+            return result
+        return wrapper
+```
+`init`메소드에서 데코레이터의 인자(`dec_arg`)를 전달받고, `call`메소드에서 꾸미려는 함수(`func`)를 전달받는다.
+그리고 `call`메소드 안에 `wrapper` 함수를 정의하고, 그 안에 어떤 식으로 꾸밀지 컨텐츠를 작성해주면 된다.
+
+```python
+#-- case 1 --#
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+decorator_maker = DecoratorMaker('sec')
+decorated_plus_func = decorator_maker(plus_func)
+decorated_plus_func(3, 4, 5)
+```
+```
+the result is 12
+'plus_func_ 0.0001 sec
+```
+위의 case 1 코드와 같이 데코레이터 호출기호인 '@'를 사용하지 않고 `DecoratorMaker` 클래스에 속하는 인스턴스를 직접 만들어 `plus_func`함수를 꾸며줄 수도 있고,
+```python
+#-- case 1 --#
+@DecoratorMaker('sec')
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+plus_func(3, 4, 5)
+```
+```
+the result is 12
+'plus_func_ 0.0001 sec
+```
+
+
+### 데코레이터를 사용한 예제
+데코레이터를 사용한 예제는 decorator_example.py 파일에 있으니 참고하도록 한다.
