@@ -17,7 +17,7 @@ def make_logger(logger_name=None):
     file_handler.setLevel(logging.INFO)
     stream_handler.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter('\n[%(levelnames)s|%(filename)s:%(lineno)s] %(asctime)s > %(message)s')
+    formatter = logging.Formatter('\n[%(levelname)s|%(filename)s:%(lineno)s] %(asctime)s > %(message)s')
 
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
@@ -49,4 +49,3 @@ def call_api_server(data, api_url):
         result = tempres.content
         return result
 
-        
