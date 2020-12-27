@@ -378,7 +378,7 @@ the result is 12
 ```
 위의 case 1 코드와 같이 데코레이터 호출기호인 '@'를 사용하지 않고 `DecoratorMaker` 클래스에 속하는 인스턴스를 직접 만들어 `plus_func`함수를 꾸며줄 수도 있고,
 ```python
-#-- case 1 --#
+#-- case 2 --#
 @DecoratorMaker('sec')
 def plus_func(*args):
     result = sum(args)
@@ -393,4 +393,4 @@ the result is 12
 
 
 ### 데코레이터를 사용한 예제
-데코레이터를 사용한 예제는 decorator_example.py 파일에 있으니 참고하도록 한다.
+Python에서 API에 서비스를 요청 할 때, Request, Response에 대한 info를 로그로 남기고 싶을 때, logging module과 함께 decorator를 사용하면 편리하다. 자세한 예제 코드는 decorator_example.py 파일에 있으니 참고하도록 한다.
