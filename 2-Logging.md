@@ -87,6 +87,7 @@ name | %(name)s | logger의 이름
 pathname | %(pathname)s | full pathname
 thread | %(thread)d | thread ID
 threadName | %(threadName)s | thread의 이름
+
 (참고: https://greeksharifa.github.io/%ED%8C%8C%EC%9D%B4%EC%8D%AC/2019/12/13/logging/)
 
 ##### (4) 생성한 handler instance를 logging instance에 적용
