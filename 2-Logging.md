@@ -31,11 +31,45 @@ logger.setLevel(logging.DEBUG) # 생성한 logger라는 logging instance는 DEBU
 ```
 위에서 생성한 `logger`가 어떤 수준의 로그 메시지를 기록할지 정하기 위해 `setLevel`이라는 메소드를 사용한다. 만약 `setLevel`에 아무런 파라미터도 전달하지 않는다면 해당 메소드는 default로 `WARNING` level을 사용하게 된다. logging instance의 level에 대해서는 아래에 간단히 정리하였으니 참고하면 좋다.
 
-logging instance의 5가지 level
-level | Description 
------ | ----------- 
-DEBUG | 간단히 문제를 진단하고 싶을 때 필요한 정보를 기록
-INFO  | 계획대로 작동하고 있음을 알리는 확인 메시지 기록
-WARNING | 소프트웨어가 작동은 하고 있지만, 예상치 못한 일이 발생했거나 발생할 것으로 예측되는 것을 알림
-ERROR | 중대한 문제로 인해 소픝웨어가 몇몇 기능들을 수행하지 못함을 알림
-CRITICAL | 작동이 불가능한 수준의 심각한 에러가 발생함을 알림
+> logging instance의 5가지 level
+> level | Description 
+> ----- | ----------- 
+> DEBUG | 간단히 문제를 진단하고 싶을 때 필요한 정보를 기록
+> INFO  | 계획대로 작동하고 있음을 알리는 확인 메시지 기록
+> WARNING | 소프트웨어가 작동은 하고 있지만, 예상치 못한 일이 발생했거나 발생할 것으로 예측되는 것을 알림
+> ERROR | 중대한 문제로 인해 소픝웨어가 몇몇 기능들을 수행하지 못함을 알림
+> CRITICAL | 작동이 불가능한 수준의 심각한 에러가 발생함을 알림
+
+#### 3. logging instance에 적용할 handler instance 만들기
+handler instance는 log 메시지의 level에 따라 적절한 log 메시지를 지정된 위치에 전달(dispatch) 해주는 역할을 수행한다.
+handler instance는 기능과 목적에 따라 여러개를 동시에 사용할 수 있다.
+가령, console 창에 log 메시지를 띄우고 싶은 경우, StreamHandler라는 메소드를 사용할 수 있고, 아예 로그파일(.log)을 따로 만들고 싶은 경우엔 FileHandler라는 메소드를 사용할 수 있다.
+
+handler isntance를 생성한 뒤에는 기본적인 사항들을 세팅해줘야 하는데 그 방법은 아래와 같다.
+
+##### (1) hnadler instance 생성
+```python
+stream_handler = logging.StreamHandler()
+file_handler = logging.FileHandler(filename='information.log') # information.log라는 이름의 파일에 log 메시지를 전달
+```
+위의 코드에서는 console에 log 메시지를 띄우고 동시에 'information.log' 파일에 log 메시지를 기록하기 위해 `StreamHandler` 메소드와 `FileHandler` 메소드를 둘다 사용하여 두 개의 handler instance를 생성하였다.
+
+##### (2) handler instance의 level 설정
+```python
+stream_handler.setLevel(logging.INFO)
+file_handler.setLevel(logging.DEBUG)
+```
+logging instance의 level을 세팅해줬던 것처럼 handler instnace의 level도 `setLevel` 메소드를 통해 세팅해줄 수 있다.
+만약 handler instance의 level을 설정하지 않는다면 생성한 handler instance들은 그대로 logging instacne의 level을 따르게 된다.
+
+위의 코드에서는 console 창에서는 INFO 이상의 로그 메시지를, 로그 파일에서는 DEBUG 이상의 로그 메시지를 출력하게끔 설정해주었다.
+
+##### (3) handler instance에 적용할 formatter instance 생성
+```python
+formatter = logging.Formatter('\n[%(levelnames)s|%(filename)s:%(lineno)s] %(asctime)s > %(message)s')
+```
+formatter instance는 `Formatter` 메소드로 생성할 수 있다. 이 formatter instance를 통해 어떤 식으로 로그 메시지를 출력할 것인지 그 출력 형태를 지정해줄 수 있다.
+
+formatter instance를 생성할 때 사용하게 되는 format은 아래와 같다.
+
+
