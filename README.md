@@ -163,9 +163,128 @@ decorator 그 자체로 인자를 필요로 하는 경우가 있는데, 이에 �
 데코레이터에게 인자를 전달해주기 위해선 데코레이터를 감싸고 있는 하나의 함수를 더 정의해주어야 한다. 즉, 데코레이터를 decorate 해줄 수 있는 함수를 데커레이터의 상위레벨에서 정의해주어야 한다는 것이다.
 
 아래의 코드에서는 데코레이터를 감싸고 있는 함수로 `decorator_maker` 함수를 정의하였고, 이 인자로 `dec_arg를` 받도록 하였다. `dec_arg` 값이 무엇이냐에 따라 출력해주는 시간의 단위를 달리할 수 있다.
+```python
+def decorator_maker(dec_arg):
+    def get_time_consumed_general(func):
+        def wrapper(*args):
+            start = time.time()
+            result = func(*args) 
+            end = time.time()
+            if dec_arg == 'msec':
+                print('%r %2.4 msec' % (func.name, (end - start) * 1000))
+            elif dec_arg == 'usec':
+                print('%r %2.4 usec' % (func.name, (end - start) * 1000000))
+            else:
+                print('%r %2.4 sec' % (func.name, (end - start)))
+            return result
+        return wrapper
+    return get_time_consumed_general
+```
+```python
+@decorator_maker('sec)
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+plus_func(3, 4, 5)
+```
+```
+>>> the result is 12
+>>> 'plus_func' 0.0001 sec
+```
+```python
+@decorator_maker('msec)
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+plus_func(3, 4, 5)
+```
+```
+>>> the result is 12
+>>> 'plus_func' 0.1483 msec
+```
+```python
+@decorator_maker('usec)
+def plus_func(*args):
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+plus_func(3, 4, 5)
+```
+```
+>>> the result is 12
+>>> 'plus_func' 79.1550 usec
+```
 
 ### 데코레이터 사용 시 함수 디버깅이 어렵다!
+#### 왜 어려울까?
 
+살펴보았듯이, 데코레이터를 호출(사용)한다는 것의 의미는 `plus_func` 함수를 `wrapper` 함수로 감싼다는 의미이며, 따라서 `plus_func` 함수의 이름, docstring, 그리고 전달받은 인자들은 모두 `wrapper`라는 함수 안에 감춰진다.
+즉, `plus_func`함수의 메타데이터들이 `wrapper`함수에 가려져서 보이지 않는다는 것이다.
+
+위에서 정의한 `decorator_maker`를 사용하여 꾸민 `plus_func`의 메타데이터를 확인해보자.
+```python
+@decorator_maker('sec')
+def plus_func(*args):
+    '''
+    This function returns the sum of the arguments
+    '''
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+print(plus_func.doc)
+print(plus_func.name)
+```
+```
+>>> None
+>>> wrapper
+```
+`plus_func.doc`를 출력하면 'This function returns the sum of all arguments'라는 문구가 나오길 기대했지만 'None'이 출력되었고, `plus_func.name`을 출력하면 'plus_func'가 나오기를 바랐지만 이게 웬걸, 'wrapper'가 대신 출력되었다.
+이를 통해 우리는 `plus_func`의 메타데이터가 `wrapper`함수에 의해 가려지게 되었음을 확인할 수 있다.
+
+이는 곧, 만약 `plus_func`함수의 특정 부분을 잘못 코딩하여 에러가 났을 때 python tracebacke이 `plus_func`함수 레벨이 아니라 `wrapper`함수 레벨에서 까지밖에 에러를 추적하지 못한다는 것을 의미한다.
+데코레이터를 호출하여 함수를 정의하면 그 함수에 대한 디버깅이 어려운 이유가 여기에 있다.
+
+#### 어떻게 해결할 수 있을까?
+이를 해결하기 위해 `functools` 모듈의 `wraps` 라는 데코레이터를 사용할 수 있다. `functools.wraps` 데코레이터는 `plus_func` 함수의 메타데이터를 카피해 `wrapper` 함수의 메타데이터에 붙여넣는 역할을 해준다.
+`functools.wraps`의 사용법은 간단하다. `wrapper` 함수를 정의하기 전에 `@functools.wraps` 데코레이터를 추가해주면 끝이다!
+
+```python
+def decorator_maker(dec_arg):
+    def get_time_consumed_general(func):
+        @functools.wraps(func)
+        def wrapper(*args):
+            start = time.time()
+            result = func(*args) 
+            end = time.time()
+            if dec_arg == 'msec':
+                print('%r %2.4 msec' % (func.name, (end - start) * 1000))
+            elif dec_arg == 'usec':
+                print('%r %2.4 usec' % (func.name, (end - start) * 1000000))
+            else:
+                print('%r %2.4 sec' % (func.name, (end - start)))
+            return result
+        return wrapper
+    return get_time_consumed_general
+```
+```python
+@decorator_maker('sec')
+def plus_func(*args):
+    '''
+    This function returns the sum of the arguments
+    '''
+    result = sum(args)
+    print('the result is {0}'.format(result))
+
+print(plus_func.doc)
+print(plus_func.name)
+```
+```
+>>> This function returns the sum of all arguments
+>>> plus_func
+```
+`plus_func`함수의 메타데이터가 잘 출력되는 것을 확인할 수 있다.
 
 ### 데코레이터는 class로도 정의할 수 있다!
 #### 1. `get_time_consumed_general` 데코레이터를 class로 정의해보자
