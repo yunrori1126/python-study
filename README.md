@@ -42,3 +42,26 @@ plus_func(3, 4)
 ```
 
 ### 데코레이터를 정의하기 전에 알아야 할 사실들?
+
+데코레이터를 정의하기에 앞서 파이썬에서 함수라는 객체가 갖는 성질이 무엇인지 간단하게 알아야 될 사실이 몇가지 있다.
+
+[FACT 1] 함수 안에서 또 다른 함수를 정의하게 되면, 안에 있는 함수는 밖에 있는 함수의 변수들을 가져와서 사용할 수 있다.
+[FACT 2] 함수를 파이썬 변수에 할당할 수 있다.
+[FACT 3] 함수는 또다른 함수를 반환할 수 있다.
+
+```python
+def decorator(function):
+    def wrapper():
+        # [FACT 1] 'decorator'라는 함수 안에서 정의된 'wrapper' 함수에서도 'decorator'함수에서 사용되는 변수인 'function'을 사용할 수 있다.
+        # [FACT 2] 'function'이라는 파이썬 함수를 'func'라는 변수에 할당할 수 있다.
+        func = function()
+        make_uppercase = func.upper()
+        return make_uppercase
+    
+    # [FACT 3] 'decorator' 함수는 'wrapper' 함수를 리턴할 수 있다.
+```
+
+위의 세 가지 사실을 받아들이고 나면 이제 데코레이터를 정의할 준비가 되었다.
+
+### 데코레이터를 정의해보자!
+#### 1. 위에서 사용한 `get_time_consumed`라는 데코레이터를 정의해보자.
