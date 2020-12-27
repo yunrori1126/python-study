@@ -13,7 +13,7 @@ python 공부 내용을 담은 repo입니다.
 ### 데코레이터가 필요한 이유는 무엇일까?
 
 데코레이터는 함수가 매번 실행될때마다 반복적으로 수행해야 하는 수고를 덜어주는 역할을 한다.
-가령, 어떤 함수의 수행시간을 알고 싶다면 그 함수의 처음과 끝에 time.time() 함수를 사용하여 처음에 돌려받은 time.time()값과 함수 마지막에 돌려받은 time.time()값의 차이를 계산해주어야 한다. 
+가령, 어떤 함수의 수행시간을 알고 싶다면 그 함수의 처음과 끝에 `time.time()` 함수를 사용하여 처음에 돌려받은 `time.time()`값과 함수 마지막에 돌려받은 `time.time()`값의 차이를 계산해주어야 한다. 
 
 아래와 같이 말이다.
 ```python
@@ -40,6 +40,10 @@ def plus_func(first_arg, second_arg):
 
 plus_func(3, 4)
 ```
+```
+>>> the reulst is 7
+>>> 'plus_func' 84.00 usec
+```
 
 ### 데코레이터를 정의하기 전에 알아야 할 사실들?
 
@@ -51,8 +55,9 @@ plus_func(3, 4)
 
 ```python
 def decorator(function):
+    # [FACT 1] 'decorator'라는 함수 안에서 정의된 'wrapper' 함수에서
+    # 'decorator'함수에서 사용되는 변수인 'function'을 사용할 수 있다.
     def wrapper():
-        # [FACT 1] 'decorator'라는 함수 안에서 정의된 'wrapper' 함수에서도 'decorator'함수에서 사용되는 변수인 'function'을 사용할 수 있다.
         # [FACT 2] 'function'이라는 파이썬 함수를 'func'라는 변수에 할당할 수 있다.
         func = function()
         make_uppercase = func.upper()
@@ -65,3 +70,22 @@ def decorator(function):
 
 ### 데코레이터를 정의해보자!
 #### 1. 위에서 사용한 `get_time_consumed`라는 데코레이터를 정의해보자.
+
+```python
+def get_time_consumed(func):
+    def wrapper(func_arg1, func_arg2): # wrapper 함수의 인자로 func 함수의 인자를 전달
+        start = time.time()
+        reulst = func(func_arg1, func_arg2)
+        end = time.time()
+        print('%r %2.4f usec' % (func.name, (end - start) * 1000000))
+
+        return result
+    return wrapper # wrapper 함수 자체를 반환
+```
+
+`wrapper` 함수의 인자로 전달된 `func_arg1`, `func_arg2`는 데코레이터가 호출되면 `func` 함수의 인자로 전달된다.
+
+위에서 정의한 `get_time_consumed` 데코레이터를 활용하여 우리는 `plus_func`라는 함수를 꾸며줄 수 있게 된다. (즉, `plus_func`함수를 실행하게 되면 함수 수행시간을 자동으로 출력할 수 있게 된다.)
+
+```python
+```
