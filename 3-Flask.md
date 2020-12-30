@@ -4,3 +4,5 @@
 
 완성된 웹 페이지는 아래와 같을 것이다.
 
+![Webpage Screenshot 1](https://github.com/yunrori1126/python-study/blob/main/Flask_toy_API/screenshot_1.png)
+![Webpage Screenshot 2](https://github.com/yunrori1126/python-study/blob/main/Flask_toy_API/screenshot_2.png)
